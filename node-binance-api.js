@@ -3324,11 +3324,23 @@ let api = function Binance( options = {} ) {
          * @param {function} callback - the callback function
          * @return {undefined}
          */
-        mgAccount: function( callback ) {
-            signedRequest( sapi + 'v1/margin/account', {}, function( error, data ) {
-                if( callback ) return callback( error, data );
-            } );
+        mgAccount: function ( callback ) {
+            if ( !callback ) {
+                return new Promise( ( resolve, reject ) => {
+                    callback = ( error, response ) => {
+                        if ( error ) {
+                            reject( error );
+                        } else {
+                            resolve( response );
+                        }
+                    }
+                    signedRequest( sapi + 'v1/margin/account', {}, callback );
+                } )
+            } else {
+                signedRequest( sapi + 'v1/margin/account', {}, callback );
+            }
         },
+
         /**
          * Get maximum borrow amount of an asset
          * @param {string} asset - the asset
