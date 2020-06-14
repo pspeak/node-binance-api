@@ -3223,12 +3223,27 @@ let api = function Binance( options = {} ) {
          * @param {function} callback - the callback function
          * @return {undefined}
          */
-        mgOpenOrders: function ( symbol, callback ) {
-            let parameters = symbol ? { symbol: symbol } : {};
-            signedRequest( sapi + 'v1/margin/openOrders', parameters, function ( error, data ) {
-                return callback.call( this, error, data, symbol );
-            } );
-        },
+        mgOpenOrders: function ( symbol, callback) {
+          let parameters = symbol ? { symbol: symbol } : {};
+          if ( !callback ) {
+              return new Promise( ( resolve, reject ) => {
+                  callback = ( error, response ) => {
+                      if ( error ) {
+                          reject( error );
+                      } else {
+                          resolve( response );
+                      }
+                  }
+                  signedRequest( sapi + 'v1/margin/openOrders', parameters, function ( error, data ) {
+                      return callback.call( this, error, data, symbol );
+                  } );
+              } )
+          } else {
+              signedRequest( sapi + 'v1/margin/openOrders', parameters, function ( error, data ) {
+                  return callback.call( this, error, data, symbol );
+              } );
+          }
+      },    
 
         /**
          * Cancels all order of a given symbol
